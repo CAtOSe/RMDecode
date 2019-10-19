@@ -1,0 +1,10 @@
+RMDecode	KEYWORD1
+decode		KEYWORD2
+begin		KEYWORD2
+stop		KEYWORD2
+getStrategy	KEYWORD2
+getBool		KEYWORD2
+getInt		KEYWORD2
+getFloat	KEYWORD2
+getRaw		KEYWORD2
+getVarCount	KEYWORD2
