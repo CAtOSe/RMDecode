@@ -44,17 +44,18 @@ void RMDecode::stop() {
   TCCR1B = 0;
 }
 
-bool RMDecode::decode() {
+uint8_t RMDecode::decode(uint8_t mode) {
   if (getMessage()) {
-    if (address == necStart) {
+    loadedStrat = false;
+    loadedEvent = false;
+    
+    if (address == necStart && bitRead(mode, 0)) {
       msgs = command - 1;
       timeoutTimer = millis() + MSG_TIMEOUT;
       uint8_t msgState = 0;
       uint8_t m = 0;
       varsC = 0;
       strat = 0;
-      loadedStrat = false;
-      loadedEvent = false;
       bool waitingForVar = false;
 
       while (timeoutTimer > millis() && m < msgs) {
@@ -75,11 +76,12 @@ bool RMDecode::decode() {
           }
         }
       }
-    } else if (address == necEvent) {
+    } else if (address == necEvent && bitRead(mode, 1)) {
       event = command;
       loadedEvent = true;
     }
-    return (loadedStrat || loadedEvent);
+    if (loadedStrat) return 1;
+    if (loadedEvent) return 2;
   } else return false;
 }
 
@@ -121,6 +123,14 @@ bool RMDecode::getMessage() {
 
 uint8_t RMDecode::getStrategy() {
   return strat;
+}
+
+bool RMDecode::isEvent() {
+  return loadedEvent;
+}
+
+bool RMDecode::isStrategy() {
+  return loadedStrat;
 }
 
 uint8_t RMDecode::getEvent() {

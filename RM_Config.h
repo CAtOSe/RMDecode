@@ -34,7 +34,7 @@
 #define MAX_VARIABLES 10
 
 // How long unitl an unfinished message is abandoned
-// NOTE: If this is too short, a message will be choped off
+// NOTE: If this is too short, message will be choped off
 // Time in milliseconds
 #define MSG_TIMEOUT 3000
 

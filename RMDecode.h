@@ -15,7 +15,7 @@ class RMDecode
     RMDecode();
     void begin();
     void stop();
-    bool decode();
+    uint8_t decode(uint8_t mode);
     uint8_t getStrategy();
     uint8_t getEvent();
     uint8_t getVarCount();
@@ -23,9 +23,9 @@ class RMDecode
     long getInt(uint8_t index);
     float getFloat(uint8_t index);
     uint32_t getRaw(uint8_t index);
-    
-    bool loadedStrat;
-    bool loadedEvent;
+    bool isEvent();
+    bool isStrategy();
+
   private:
     bool getMessage();
 
@@ -33,6 +33,9 @@ class RMDecode
     uint8_t command;
     uint8_t inv_command;
     uint8_t event;
+
+    bool loadedStrat;
+    bool loadedEvent;
 
     uint32_t timeoutTimer;
     uint8_t msgs;
