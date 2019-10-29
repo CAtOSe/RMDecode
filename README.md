@@ -14,7 +14,11 @@ Change your address used for receiving in `RM_Config.h` It must be 12 bits (3 HE
 #define NEC_ADDR 0xABC
 ```
 
-Upload example `SimpleRcv` and enjoy.
+Upload example `SimpleRcv` and enjoy. Check [wiki](https://github.com/CAtOSe/RMDecode/wiki) for documentation.
+
+## Docs
+You can find docs and other useful information at the [wiki](https://github.com/CAtOSe/RMDecode/wiki).
+
 
 ## Other
 If you find any bugs, please open an issue here and provide as much info as possible. Thanks!
