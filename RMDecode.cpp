@@ -39,6 +39,8 @@ void RMDecode::stop() {
   detachInterrupt(IR_INT);
   _nec_ok = false;
   _nec_state = 0;
+  loadedStrat = false;
+  loadedEvent = false;
   TCCR1B = 0;
 }
 
@@ -123,8 +125,9 @@ uint8_t RMDecode::getStrategy() {
 
 uint8_t RMDecode::getEvent() {
   loadedEvent = false;
+  uint8_t r = event;
   event = 0;
-  return event;
+  return r;
 }
 
 ISR(TIMER1_OVF_vect) {                           // Timer1 interrupt service routine (ISR)
