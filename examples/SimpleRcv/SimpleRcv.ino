@@ -15,28 +15,34 @@ void loop() {
   // Returns true if a signal is found
   if (robomote.decode()) {
     Serial.println("Got msg");
+    if (robomote.loadedStrat) {
+      Serial.print("Startegy: ");
+      Serial.println(robomote.getStrategy()); // Call this to get selected strategy
 
-    Serial.print("Startegy: ");
-    Serial.println(robomote.getStrategy()); // Call this to get selected strategy
+      Serial.print("V1: ");
+      Serial.println(robomote.getInt(0)); // Call this to get integer (long) at index 0
+      // NOTE: nothing prevents you from getting this variable as a float, but you're gonna get an error value. So be ware of the types.
 
-    Serial.print("V1: ");
-    Serial.println(robomote.getInt(0)); // Call this to get integer (long) at index 0
-    // NOTE: nothing prevents you from getting this variable as a float, but you're gonna get an error value. So be ware of the types.
+      Serial.print("V2: ");
+      Serial.println(robomote.getFloat(1), 6);
 
-    Serial.print("V2: ");
-    Serial.println(robomote.getFloat(1), 6);
+      Serial.print("V3: ");
+      Serial.println(robomote.getInt(2));
 
-    Serial.print("V3: ");
-    Serial.println(robomote.getInt(2));
+      Serial.print("V4: ");
+      Serial.println(robomote.getFloat(3), 6);
 
-    Serial.print("V4: ");
-    Serial.println(robomote.getFloat(3), 6);
+      Serial.print("V4: ");
+      Serial.println(robomote.getBool(4));
 
-    Serial.print("V2: ");
-    Serial.println(robomote.getBool(4));
+    } else if (robomote.loadedEvent) {
+      Serial.print("EV: ");
+      Serial.println(robomote.getEvent());
+    }
 
-
-    robomote.stop(); // Stop receiving signals and dissable interrupt.
-    while(1); // Halt program
+    delay(500);
+    
+    //robomote.stop(); // Stop receiving signals and dissable interrupt.
+    //while(1); // Halt program
   }
 }

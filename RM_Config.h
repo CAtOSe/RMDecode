@@ -39,10 +39,11 @@
 #define MSG_TIMEOUT 3000
 
 // Addresses of RoboMote
-#define NEC_ADDR 0xABC
+#define NEC_ADDR 0xDAB
 #define NEC_START 0x1
 #define NEC_STRATEGY 0x2
 #define NEC_VAR 0x3
+#define NEC_EVENT 0x4
 #define NEC_END 0x6
 
 // This library uses Timer1. If it's taken already...
