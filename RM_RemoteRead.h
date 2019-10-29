@@ -1,8 +1,3 @@
-extern byte _nec_state;
-extern unsigned long _nec_code;
-extern bool _nec_ok;
-extern byte _i;
-
 void remote_read() {
   unsigned int timer_value;
   if(_nec_state != 0){
