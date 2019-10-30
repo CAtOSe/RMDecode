@@ -135,9 +135,7 @@ bool RMDecode::isStrategy() {
 
 uint8_t RMDecode::getEvent() {
   loadedEvent = false;
-  uint8_t r = event;
-  event = 0;
-  return r;
+  return event;
 }
 
 ISR(TIMER1_OVF_vect) {                           // Timer1 interrupt service routine (ISR)
