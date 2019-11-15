@@ -4,6 +4,15 @@ void remote_read() {
     timer_value = TCNT1;                         // Store Timer1 value
     TCNT1 = 0;                                   // Reset Timer1
   }
+  
+  switch(_nec_state) {
+	case 0:
+		// 9 ms pulse start
+		TCNT2 = 0; // Reset timer to start counting 9ms
+		TCCR2B = 
+  }
+  
+  /*
   switch(_nec_state){
    case 0 :                                      // Start receiving IR data (we're at the beginning of 9ms pulse)
     TCNT1  = 0;                                  // Reset Timer1
@@ -53,4 +62,5 @@ void remote_read() {
     }
     _nec_state = 3;                               // Next state: end of 562µs pulse (start of 562µs or 1687µs space)
   }
+  */
 }

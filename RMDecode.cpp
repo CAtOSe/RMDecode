@@ -11,6 +11,7 @@ byte _nec_state = 0;
 unsigned long _nec_code = 0;
 bool _nec_ok = 0;
 byte _i = 0;
+byte _overflow_count = 0;
 
 #include "RM_RemoteRead.h"
 
@@ -28,10 +29,20 @@ void RMDecode::begin() {
   _nec_ok = false;
   _nec_state = 0;
   msgs = 0;
+  /*
   TCCR1A = 0;
   TCCR1B = 0;                                    // Disable Timer1 module
   TCNT1  = 0;                                    // Set Timer1 preload value to 0 (reset)
   TIMSK1 = 1;                                    // enable Timer1 overflow interrupt
+  */
+  
+  // New Timer
+  
+  TCCR2A = 0; // Reset Timer2 reg A (aka disable it)
+  TCCR2B = 0; // Set to Normal mode
+  TCNT2 = 0; // Set value to 0
+  TIMSK2 = 1; // Enable overflow vector
+  
   attachInterrupt(IR_INT, remote_read, CHANGE);       // Enable external interrupt (INT0)
 }
 
@@ -41,7 +52,11 @@ void RMDecode::stop() {
   _nec_state = 0;
   loadedStrat = false;
   loadedEvent = false;
-  TCCR1B = 0;
+  
+  TCCR2A = 0; // Reset Timer2 reg A (aka disable it)
+  TCCR2B = 0; // Set to Normal mode
+  TCNT2 = 0; // Set value to 0
+  TIMSK2 = 1; // Enable overflow vector
 }
 
 uint8_t RMDecode::decode(uint8_t mode) {
@@ -138,7 +153,7 @@ uint8_t RMDecode::getEvent() {
   return event;
 }
 
-ISR(TIMER1_OVF_vect) {                           // Timer1 interrupt service routine (ISR)
+ISR(TIMER2_OVF_vect) {                           // Timer1 interrupt service routine (ISR)
   _nec_state = 0;                                 // Reset decoding process
   TCCR1B = 0;                                    // Disable Timer1 module
 }
