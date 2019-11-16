@@ -24,7 +24,7 @@
 //   2 - D0
 //   3 - D1
 //   4 - D7
-#define IR_INT 0
+#define IR_INT 1
 
 
 

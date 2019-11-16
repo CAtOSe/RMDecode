@@ -59,7 +59,6 @@ uint8_t RMDecode::decode(uint8_t mode) {
     bool receivedEvent = false;
 
     if (address == necStart && bitRead(mode, 0)) {
-      Serial.println("Start");
       msgs = command - 1;
       timeoutTimer = millis() + MSG_TIMEOUT;
       uint8_t msgState = 0;
@@ -72,18 +71,14 @@ uint8_t RMDecode::decode(uint8_t mode) {
         if (getMessage()) {
           m++;
           if (address == necStrategy) {
-            Serial.println("STRAT");
             strat = command;
           } else if (address == necEnd) {
-            Serial.println("End");
             receivedStrat = true;
             loadedStrat = true;
             break;
           } else if (address == necVar) {
-            Serial.println("V1");
             waitingForVar = true;
           } else if (waitingForVar) {
-            Serial.println("V2");
             uint32_t var = ((uint32_t) address << 16) | ((uint32_t) command << 8) | (inv_command);
             memcpy(&vars[varsC], &var, sizeof(uint32_t));
             varsC++;
@@ -95,8 +90,6 @@ uint8_t RMDecode::decode(uint8_t mode) {
       event = command;
       receivedEvent = true;
       loadedEvent = true;
-    } else {
-      Serial.println(address, HEX);
     }
     if (receivedStrat) return 1;
     if (receivedEvent) return 2;
@@ -175,13 +168,8 @@ ISR(TIMER2_OVF_vect) {
     TCCR2B = 0; // Disable Timer2
     TCNT2 = 0; // Set value to 0
     TIMSK2 = 1; // Enable overflow vector
-
-    Serial.println("Too many overflows");
   } else {
     _overflow_count++;
     TCNT2 = 0;
   }
-  //_nec_state = 0;                                 // Reset decoding process
-  //TCCR1B = 0;                                    // Disable Timer1 module
-
 }
