@@ -83,7 +83,7 @@ void remote_read() {
         TCCR2B = 0;
         TCNT2 = 0;
 
-        detachInterrupt(IR_INT);
+        detachInterrupt(_irPin);
         delay(2);
 
         _nec_ok = true;

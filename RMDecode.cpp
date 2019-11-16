@@ -12,12 +12,15 @@ unsigned long _nec_code = 0;
 bool _nec_ok = 0;
 byte _i = 0;
 long _overflow_count = 0;
+uint8_t _irPin = 0;
 
 #include "RM_RemoteRead.h"
 
 
-RMDecode::RMDecode() {
-  attachInterrupt(IR_INT, remote_read, CHANGE);
+RMDecode::RMDecode(uint8_t pin) {
+  irPin = digitalPinToInterrupt(pin);
+  _irPin = irPin;
+  attachInterrupt(irPin, remote_read, CHANGE);
 }
 
 void RMDecode::begin() {
@@ -41,11 +44,11 @@ void RMDecode::begin() {
   TIMSK2 = 1; // Enable overflow vector
 
   // Enable external interrupt
-  attachInterrupt(IR_INT, remote_read, CHANGE);
+  attachInterrupt(irPin, remote_read, CHANGE);
 }
 
 void RMDecode::stop() {
-  detachInterrupt(IR_INT);
+  detachInterrupt(irPin);
   _nec_ok = false;
   _nec_state = 0;
 
@@ -120,7 +123,7 @@ uint8_t RMDecode::getVarCount() {
 
 bool RMDecode::getMessage() {
   if (_nec_ok) {
-    attachInterrupt(IR_INT, remote_read, CHANGE);
+    attachInterrupt(irPin, remote_read, CHANGE);
     _nec_state = 0;
     _nec_ok = 0;
     _i = 0;
