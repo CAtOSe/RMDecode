@@ -1,6 +1,6 @@
 #include "RMDecode.h" // Includes the library *duh*
 
-RMDecode robomote; // Declare remote object
+RMDecode robomote(3); // Declare remote object
 
 void setup() {
   Serial.begin(115200);

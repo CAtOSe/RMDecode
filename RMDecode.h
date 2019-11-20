@@ -12,7 +12,7 @@
 class RMDecode
 {
   public:
-    RMDecode();
+    RMDecode(uint8_t pin);
     void begin();
     void stop();
     uint8_t decode(uint8_t mode);
@@ -28,6 +28,8 @@ class RMDecode
 
   private:
     bool getMessage();
+	
+	uint8_t irPin;
 
     uint16_t address;
     uint8_t command;

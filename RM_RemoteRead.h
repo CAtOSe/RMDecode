@@ -1,56 +1,100 @@
 void remote_read() {
   unsigned int timer_value;
-  if(_nec_state != 0){
-    timer_value = TCNT1;                         // Store Timer1 value
-    TCNT1 = 0;                                   // Reset Timer1
-  }
-  switch(_nec_state){
-   case 0 :                                      // Start receiving IR data (we're at the beginning of 9ms pulse)
-    TCNT1  = 0;                                  // Reset Timer1
-    TCCR1B = 2;                                  // Enable Timer1 module with 1/8 prescaler ( 2 ticks every 1 us)
-    _nec_state = 1;                               // Next state: end of 9ms pulse (start of 4.5ms space)
-    _i = 0;
-    return;
-   case 1 :                                      // End of 9ms pulse
-    if((timer_value > 19000) || (timer_value < 17000)){         // Invalid interval ==> stop decoding and reset
-      _nec_state = 0;                             // Reset decoding process
-      TCCR1B = 0;                                // Disable Timer1 module
-    }
-    else
-      _nec_state = 2;                             // Next state: end of 4.5ms space (start of 562µs pulse)
-    return;
-   case 2 :                                      // End of 4.5ms space
-    if((timer_value > 10000) || (timer_value < 8000)){
-      _nec_state = 0;                             // Reset decoding process
-      TCCR1B = 0;                                // Disable Timer1 module
-    }
-    else
-      _nec_state = 3;                             // Next state: end of 562µs pulse (start of 562µs or 1687µs space)
-    return;
-   case 3 :                                      // End of 562µs pulse
-    if((timer_value > 1400) || (timer_value < 800)){           // Invalid interval ==> stop decoding and reset
-      TCCR1B = 0;                                // Disable Timer1 module
-      _nec_state = 0;                             // Reset decoding process
-    }
-    else
-      _nec_state = 4;                             // Next state: end of 562µs or 1687µs space
-    return;
-   case 4 :                                      // End of 562µs or 1687µs space
-    if((timer_value > 3600) || (timer_value < 800)){           // Time interval invalid ==> stop decoding
-      TCCR1B = 0;                                // Disable Timer1 module
-      _nec_state = 0;                             // Reset decoding process
+
+  switch(_nec_state) {
+  	case 0:
+	  // 9 ms pulse start
+	  TCCR2B = 7; // Set clock divider to 1024 (16.32ms)
+      TCNT2 = 0; // Reset timer to start counting 9ms
+      _overflow_count = 0;
+      _nec_state = 1;
       return;
-    }
-    if( timer_value > 2000)                      // If space width > 1ms (short space)
-      bitSet(_nec_code, (31 - _i));                // Write 1 to bit (31 - i)
-    else                                         // If space width < 1ms (long space)
-      bitClear(_nec_code, (31 - _i));              // Write 0 to bit (31 - i)
-    _i++;
-    if(_i > 31){                                  // If all bits are received
-      _nec_ok = 1;                                // Decoding process OK
-      detachInterrupt(IR_INT);                        // Disable external interrupt (INT0)
+
+    case 1:
+      // 9 ms pulse end
+      timer_value = TCNT2;
+      TCNT2 = 0;
+
+      if (timer_value >= 133 && timer_value <= 147) {
+        // Good timing, move on to next stage
+        TCNT2 = 0;
+        _nec_state = 2;
+      } else {
+        // Bad timing, disable & reset
+        TCCR2B = 0;
+        _nec_state = 0;
+      }
       return;
-    }
-    _nec_state = 3;                               // Next state: end of 562µs pulse (start of 562µs or 1687µs space)
+
+    case 2:
+      // 4.5ms space end & start of 1st bit
+      timer_value = TCNT2;
+      TCNT2 = 0;
+
+      if (timer_value >= 63 && timer_value <= 77) {
+        TCCR2B = 6; // Change prescaler to 256 (4.08ms)
+        TCNT2 = 0;
+        _i = 0;
+        _nec_state = 3;
+      } else {
+        // Bad timing, disable & reset
+        TCCR2B = 0;
+        _nec_state = 0;
+      }
+      return;
+
+    case 3:
+      // end of logic pulse bit (should be 560us)
+      timer_value = TCNT2;
+
+      if (timer_value >= 28 && timer_value <= 42) {
+        _nec_state = 4;
+      } else {
+        // Bad timing, disable & reset
+        TCCR2B = 0;
+        _nec_state = 0;
+      }
+      return;
+
+    case 4:
+      // end of logic pulse (space and bit)
+      // 2.25ms for '1'
+      // 1.12ms for '0'
+      timer_value = TCNT2;
+      TCNT2 = 0;
+
+      if (timer_value >= 133 && timer_value <= 147) {
+        // Logic '1'
+        bitSet(_nec_code, (31 - _i));
+        _i++;
+        _nec_state = 3;
+      } else if (timer_value >= 63 && timer_value <= 77) {
+        // Logic '0'
+        bitClear(_nec_code, (31 - _i));
+        _i++;
+        _nec_state = 3;
+      } else {
+        // Bad timing, disable & reset
+        TCCR2B = 0;
+        _nec_state = 0;
+      }
+
+      if (_i > 31) {
+        TCCR2B = 0;
+        TCNT2 = 0;
+
+        detachInterrupt(_irPin);
+        delay(2);
+
+        _nec_ok = true;
+        _nec_state = 0;
+
+      }
+      return;
+
+    default:
+      // ???
+      TCCR2B = 0;
+      _nec_state = 0;
   }
 }
